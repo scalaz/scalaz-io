@@ -17,15 +17,15 @@ package zio
 
 sealed trait LogLevel extends ZIOAspect[Nothing, Any, Nothing, Any, Nothing, Any] { self =>
   def ordinal: Int
-  def label: String 
+  def label: String
   def syslog: Int
 
-  def apply[R >: Nothing <: Any, E >: Nothing <: Any, A  >: Nothing <: Any](zio: ZIO[R, E, A]): ZIO[R, E, A] = 
+  def apply[R >: Nothing <: Any, E >: Nothing <: Any, A >: Nothing <: Any](zio: ZIO[R, E, A]): ZIO[R, E, A] =
     FiberRef.currentLogLevel.locally(self)(zio)
 }
 object LogLevel {
-  final case class Value(ordinal: Int, label: String, syslog: Int) extends LogLevel 
-  
+  final case class Value(ordinal: Int, label: String, syslog: Int) extends LogLevel
+
   val All     = Value(Int.MinValue, "ALL", -1)
   val Fatal   = Value(50000, "FATAL", 2)
   val Error   = Value(40000, "ERROR", 3)

@@ -86,7 +86,12 @@ private[internal] trait PlatformSpecific {
         t.isInstanceOf[VirtualMachineError]
 
       // FIXME: Make this nice
-      def log(level: LogLevel, message: () => String, context: Map[FiberRef.Runtime[_], AnyRef], regions: List[String]): Unit = 
+      def log(
+        level: LogLevel,
+        message: () => String,
+        context: Map[FiberRef.Runtime[_], AnyRef],
+        regions: List[String]
+      ): Unit =
         println(message())
 
       def reportFailure(cause: Cause[Any]): Unit =

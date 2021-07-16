@@ -646,26 +646,26 @@ private[zio] final class FiberContext[E, A](
 
                     curZio = push.acquireRelease(pop, zio.zio)
 
-                  case ZIO.Tags.Logged => 
+                  case ZIO.Tags.Logged =>
                     val zio = curZio.asInstanceOf[ZIO.Logged]
 
                     val logLevel = zio.overrideLogLevel match {
-                      case Some(level) => level 
-                      case _ => getFiberRefValue(FiberRef.currentLogLevel)
+                      case Some(level) => level
+                      case _           => getFiberRefValue(FiberRef.currentLogLevel)
                     }
 
                     val spans = getFiberRefValue(FiberRef.currentLogSpan)
 
-                    val contextMap = 
+                    val contextMap =
                       if (zio.overrideRef1 ne null) {
                         val map = fiberRefLocals.get
 
-                        if (zio.overrideValue1 eq null) map - zio.overrideRef1 
+                        if (zio.overrideValue1 eq null) map - zio.overrideRef1
                         else map.updated(zio.overrideRef1, zio.overrideValue1)
-                      } else fiberRefLocals.get 
+                      } else fiberRefLocals.get
 
                     platform.log(logLevel, zio.message, contextMap, spans)
-                    
+
                     curZio = ZIO.unit
                 }
               }
@@ -722,8 +722,8 @@ private[zio] final class FiberContext[E, A](
     forkScope: Option[ZScope[Exit[Any, Any]]] = None,
     reportFailure: Option[Cause[Any] => Unit] = None
   ): FiberContext[E, A] = {
-    val childFiberRefLocals = fiberRefLocals.get.transform {
-      case (fiberRef, value) => fiberRef.fork(value.asInstanceOf).asInstanceOf[AnyRef]
+    val childFiberRefLocals = fiberRefLocals.get.transform { case (fiberRef, value) =>
+      fiberRef.fork(value.asInstanceOf).asInstanceOf[AnyRef]
     }
 
     val tracingRegion = inTracingRegion
@@ -845,20 +845,21 @@ private[zio] final class FiberContext[E, A](
     oldValue.getOrElse(ref.initial)
   }
 
-  def getFiberRefValue[A](fiberRef: FiberRef.Runtime[A]): A = 
+  def getFiberRefValue[A](fiberRef: FiberRef.Runtime[A]): A =
     fiberRefLocals.get.get(fiberRef).asInstanceOf[Option[A]].getOrElse(fiberRef.initial)
 
   @tailrec
   def setFiberRefValue[A](fiberRef: FiberRef.Runtime[A], value: A): Unit = {
-    val oldState = fiberRefLocals.get 
+    val oldState = fiberRefLocals.get
 
-    if (!fiberRefLocals.compareAndSet(oldState, oldState.updated(fiberRef, value.asInstanceOf[AnyRef]))) setFiberRefValue(fiberRef, value)
+    if (!fiberRefLocals.compareAndSet(oldState, oldState.updated(fiberRef, value.asInstanceOf[AnyRef])))
+      setFiberRefValue(fiberRef, value)
     else ()
   }
 
   @tailrec
   def removeFiberRef[A](fiberRef: FiberRef.Runtime[A]): Unit = {
-    val oldState = fiberRefLocals.get 
+    val oldState = fiberRefLocals.get
 
     if (!fiberRefLocals.compareAndSet(oldState, oldState.removed(fiberRef))) removeFiberRef(fiberRef)
     else ()

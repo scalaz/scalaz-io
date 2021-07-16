@@ -23,7 +23,7 @@ import zio.{Cause, FiberRef, LogLevel, Supervisor}
 
 import java.util.{HashMap, HashSet, Map => JMap, Set => JSet}
 import scala.concurrent.ExecutionContext
-import scala.scalajs.js.Dynamic.{ global => jsglobal }
+import scala.scalajs.js.Dynamic.{global => jsglobal}
 
 private[internal] trait PlatformSpecific {
 
@@ -84,9 +84,9 @@ private[internal] trait PlatformSpecific {
   val Warning = Value(30000, "WARN", 4)
   val Info    = Value(20000, "INFO", 6)
   val Debug   = Value(10000, "DEBUG", 7)
-      */
+       */
 
-      def log(level: LogLevel, message: () => String, context: Map[FiberRef[_], AnyRef], regions: List[String]): Unit = {
+      def log(level: LogLevel, message: () => String, context: Map[FiberRef[_], AnyRef], regions: List[String]): Unit =
         try {
           // TODO: Improve output & use console.group, etc.
           val line = message()
@@ -100,7 +100,6 @@ private[internal] trait PlatformSpecific {
         } catch {
           case t if !fatal(t) => ()
         }
-      }
 
       def reportFatal(t: Throwable): Nothing = {
         t.printStackTrace()

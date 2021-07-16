@@ -5261,9 +5261,8 @@ object ZIO extends ZIOCompanionPlatformSpecific {
   }
 
   final class LogSpan(val label: () => String) extends AnyVal {
-    def apply[R, E, A](zio: ZIO[R, E, A]): ZIO[R, E, A] = 
-      FiberRef.currentLogSpan.get.flatMap(stack =>
-        FiberRef.currentLogSpan.locally(label() :: stack)(zio))
+    def apply[R, E, A](zio: ZIO[R, E, A]): ZIO[R, E, A] =
+      FiberRef.currentLogSpan.get.flatMap(stack => FiberRef.currentLogSpan.locally(label() :: stack)(zio))
   }
 
   @inline
@@ -5524,7 +5523,11 @@ object ZIO extends ZIOCompanionPlatformSpecific {
     override def tag = Tags.FiberRefModify
   }
 
-  private[zio] final class FiberRefLocally[V, R, E, A](val localValue: A, val fiberRef: FiberRef.Runtime[V], val zio: ZIO[R, E, A]) extends ZIO[R, E, A] {
+  private[zio] final class FiberRefLocally[V, R, E, A](
+    val localValue: A,
+    val fiberRef: FiberRef.Runtime[V],
+    val zio: ZIO[R, E, A]
+  ) extends ZIO[R, E, A] {
     override def tag = Tags.FiberRefLocally
   }
 
@@ -5569,7 +5572,7 @@ object ZIO extends ZIOCompanionPlatformSpecific {
   private[zio] final class Logged(
     val message: () => String,
     val overrideLogLevel: Option[LogLevel] = None,
-    val overrideRef1: FiberRef.Runtime[_] = null, 
+    val overrideRef1: FiberRef.Runtime[_] = null,
     val overrideValue1: AnyRef = null
   ) extends ZIO[Any, Nothing, Unit] {
     override def tag = Tags.Logged

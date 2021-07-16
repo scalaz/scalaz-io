@@ -43,10 +43,15 @@ abstract class Platform { self =>
   def fatal(t: Throwable): Boolean
 
   /**
-    * Logs the specified message at the specified log level, using the provided context and region 
-    * stack.
-    */
-  def log(level: LogLevel, message: () => String, context: Map[FiberRef.Runtime[_], AnyRef], regions: List[String]): Unit
+   * Logs the specified message at the specified log level, using the provided context and region
+   * stack.
+   */
+  def log(
+    level: LogLevel,
+    message: () => String,
+    context: Map[FiberRef.Runtime[_], AnyRef],
+    regions: List[String]
+  ): Unit
 
   /**
    * Reports the specified failure.
@@ -59,8 +64,8 @@ abstract class Platform { self =>
   def reportFatal(t: Throwable): Nothing
 
   /**
-    * Retrieves the supervisor associated with the platform.
-    */
+   * Retrieves the supervisor associated with the platform.
+   */
   def supervisor: Supervisor[Any]
 
   /**
@@ -83,9 +88,14 @@ abstract class Platform { self =>
       override def fatal(t: Throwable): Boolean = f(t)
     }
 
-  def withLogger(logger: (LogLevel, () => String, Map[FiberRef.Runtime[_], AnyRef], List[String]) => Unit): Platform = 
+  def withLogger(logger: (LogLevel, () => String, Map[FiberRef.Runtime[_], AnyRef], List[String]) => Unit): Platform =
     new Platform.Proxy(self) {
-      override def log(level: LogLevel, message: () => String, context: Map[FiberRef.Runtime[_], AnyRef], regions: List[String]): Unit = 
+      override def log(
+        level: LogLevel,
+        message: () => String,
+        context: Map[FiberRef.Runtime[_], AnyRef],
+        regions: List[String]
+      ): Unit =
         logger(level, message, context, regions)
     }
 
@@ -116,10 +126,15 @@ abstract class Platform { self =>
 }
 object Platform extends PlatformSpecific {
   abstract class Proxy(self: Platform) extends Platform {
-    def executor: Executor                     = self.executor
-    def blockingExecutor: Executor             = self.blockingExecutor
-    def fatal(t: Throwable): Boolean           = self.fatal(t)
-    def log(level: LogLevel, message: () => String, context: Map[FiberRef.Runtime[_], AnyRef], regions: List[String]): Unit = self.log(level, message, context, regions)
+    def executor: Executor           = self.executor
+    def blockingExecutor: Executor   = self.blockingExecutor
+    def fatal(t: Throwable): Boolean = self.fatal(t)
+    def log(
+      level: LogLevel,
+      message: () => String,
+      context: Map[FiberRef.Runtime[_], AnyRef],
+      regions: List[String]
+    ): Unit                                    = self.log(level, message, context, regions)
     def reportFailure(cause: Cause[Any]): Unit = self.reportFailure(cause)
     def reportFatal(t: Throwable): Nothing     = self.reportFatal(t)
     def supervisor: Supervisor[Any]            = self.supervisor
