@@ -19,10 +19,11 @@ package zio.internal
 import com.github.ghik.silencer.silent
 import zio.internal.stacktracer.Tracer
 import zio.internal.tracing.TracingConfig
-import zio.{Cause, Supervisor}
+import zio.{Cause, FiberRef, LogLevel, Supervisor}
 
 import java.util.{HashMap, HashSet, Map => JMap, Set => JSet}
 import scala.concurrent.ExecutionContext
+import scala.scalajs.js.Dynamic.{ global => jsglobal }
 
 private[internal] trait PlatformSpecific {
 
@@ -77,6 +78,29 @@ private[internal] trait PlatformSpecific {
       val executor = executor0
 
       def fatal(t: Throwable): Boolean = false
+      /*
+      val Fatal   = Value(50000, "FATAL", 2)
+  val Error   = Value(40000, "ERROR", 3)
+  val Warning = Value(30000, "WARN", 4)
+  val Info    = Value(20000, "INFO", 6)
+  val Debug   = Value(10000, "DEBUG", 7)
+      */
+
+      def log(level: LogLevel, message: () => String, context: Map[FiberRef[_], AnyRef], regions: List[String]): Unit = {
+        try {
+          // TODO: Improve output & use console.group, etc.
+          val line = message()
+
+          if (level == LogLevel.Fatal) jsglobal.console.error(line)
+          else if (level == LogLevel.Error) jsglobal.console.error(line)
+          else if (level == LogLevel.Debug) jsglobal.console.debug(line)
+          else jsglobal.console.log(line)
+
+          ()
+        } catch {
+          case t if !fatal(t) => ()
+        }
+      }
 
       def reportFatal(t: Throwable): Nothing = {
         t.printStackTrace()

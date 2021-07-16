@@ -85,6 +85,11 @@ sealed abstract class ZFiberRef[+EA, +EB, -A, +B] extends Serializable { self =>
   def get: IO[EB, B]
 
   /**
+    * Returns the initial value or error.
+    */
+  def initialValue: Either[EB, B]
+
+  /**
    * Returns an `IO` that runs with `value` bound to the current fiber.
    *
    * Guarantees that fiber data is properly restored via `acquireRelease`.
@@ -186,22 +191,35 @@ sealed abstract class ZFiberRef[+EA, +EB, -A, +B] extends Serializable { self =>
 
 object ZFiberRef {
 
+  val currentLogLevel: FiberRef.Runtime[LogLevel] = 
+    FiberRef.unsafeMake(LogLevel.Info)
+
+  val currentLogSpan: FiberRef.Runtime[List[String]] = 
+    FiberRef.unsafeMake(Nil)
+
+
   /**
    * Creates a new `FiberRef` with given initial value.
-   */
+   */  
   def make[A](
     initial: A,
     fork: A => A = (a: A) => a,
     join: (A, A) => A = ((_: A, a: A) => a)
   ): UIO[FiberRef.Runtime[A]] =
-    new ZIO.FiberRefNew(initial, fork, join)
+    ZIO.succeed(unsafeMake(initial, fork, join))
+
+  private[zio] def unsafeMake[A](
+    initial: A,
+    fork: A => A = (a: A) => a,
+    join: (A, A) => A = ((_: A, a: A) => a)
+  ): FiberRef.Runtime[A] =
+    new ZFiberRef.Runtime[A](initial, fork, join)
 
   final class Runtime[A] private[zio] (
     private[zio] val initial: A,
     private[zio] val fork: A => A,
     private[zio] val join: (A, A) => A
   ) extends ZFiberRef[Nothing, Nothing, A, A] { self =>
-
     def fold[EC, ED, C, D](
       ea: Nothing => EC,
       eb: Nothing => ED,
@@ -229,10 +247,12 @@ object ZFiberRef {
         type S = A
         def getEither(s: S): Either[ED, D] =
           bd(s)
+        def initialValue: Either[ED,D] = self.initialValue.flatMap(bd)
         def setEither(c: C)(s: S): Either[EC, S] =
           ca(c)(s)
         val value: Runtime[S] =
           self
+        
       }
 
     def get: IO[Nothing, A] =
@@ -252,6 +272,8 @@ object ZFiberRef {
         val result = pf.applyOrElse[A, A](v, identity)
         (v, result)
       }
+
+    def initialValue: Either[Nothing,A] = Right(initial)
 
     def locally[R, EC, C](value: A)(use: ZIO[R, EC, C]): ZIO[R, EC, C] =
       for {
@@ -307,10 +329,7 @@ object ZFiberRef {
           override def get(): A = {
             val fiberContext = Fiber._currentFiber.get()
 
-            Option {
-              if (fiberContext eq null) null
-              else fiberContext.fiberRefLocals.get(self)
-            }.map(_.asInstanceOf[A]).getOrElse(super.get())
+            fiberContext.fiberRefLocals.get.getOrElse(self, super.get()).asInstanceOf[A]
           }
 
           override def set(a: A): Unit = {
@@ -318,20 +337,15 @@ object ZFiberRef {
             val fiberRef     = self.asInstanceOf[FiberRef.Runtime[Any]]
 
             if (fiberContext eq null) super.set(a)
-            else fiberContext.fiberRefLocals.put(fiberRef, a)
-
-            ()
+            else fiberContext.setFiberRefValue(fiberRef, a)
           }
 
           override def remove(): Unit = {
             val fiberContext = Fiber._currentFiber.get()
-            val fiberRef     = self.asInstanceOf[FiberRef[Any]]
+            val fiberRef     = self
 
             if (fiberContext eq null) super.remove()
-            else {
-              fiberContext.fiberRefLocals.remove(fiberRef)
-              ()
-            }
+            else fiberContext.removeFiberRef(fiberRef)
           }
 
           override def initialValue(): A = initial
@@ -375,6 +389,7 @@ object ZFiberRef {
         type S = self.S
         def getEither(s: S): Either[ED, D] =
           self.getEither(s).fold(e => Left(eb(e)), bd)
+        def initialValue: Either[ED,D] = self.initialValue.left.map(eb).flatMap(bd)        
         def setEither(c: C)(s: S): Either[EC, S] =
           self
             .getEither(s)
@@ -386,6 +401,8 @@ object ZFiberRef {
 
     def get: IO[EB, B] =
       value.get.flatMap(getEither(_).fold(ZIO.fail(_), ZIO.succeedNow))
+
+    def initialValue: Either[EB,B] = value.initialValue.flatMap(getEither(_))
 
     def locally[R, EC >: EA, C](a: A)(use: ZIO[R, EC, C]): ZIO[R, EC, C] =
       value.get.flatMap { old =>
@@ -418,6 +435,7 @@ object ZFiberRef {
         type S = self.S
         def getEither(s: S): Either[ED, D] =
           self.getEither(s).fold(e => Left(eb(e)), bd)
+        def initialValue: Either[ED,D] = self.initialValue.left.map(eb).flatMap(bd)
         def setEither(c: C)(s: S): Either[EC, S] =
           ca(c).flatMap(a => self.setEither(a)(s).fold(e => Left(ea(e)), Right(_)))
         val value: Runtime[S] =
@@ -435,6 +453,7 @@ object ZFiberRef {
         type S = self.S
         def getEither(s: S): Either[ED, D] =
           self.getEither(s).fold(e => Left(eb(e)), bd)
+        def initialValue: Either[ED,D] = self.initialValue.left.map(eb).flatMap(bd)
         def setEither(c: C)(s: S): Either[EC, S] =
           self
             .getEither(s)
