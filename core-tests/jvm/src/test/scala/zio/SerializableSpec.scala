@@ -192,9 +192,9 @@ object SerializableSpec extends ZIOBaseSpec {
     },
     testM("FiberRef is serializable") {
       val value = 10
-      val init  = FiberRef(value)
 
       for {
+        init   <- FiberRef.make(value)
         ref    <- serializeAndBack(init)
         result <- ref.get
       } yield assert(result)(equalTo(value))

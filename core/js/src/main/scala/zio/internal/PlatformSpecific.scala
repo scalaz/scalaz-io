@@ -86,7 +86,12 @@ private[internal] trait PlatformSpecific {
   val Debug   = Value(10000, "DEBUG", 7)
        */
 
-      def log(level: LogLevel, message: () => String, context: Map[FiberRef[_], AnyRef], regions: List[String]): Unit =
+      def log(
+        level: LogLevel,
+        message: () => String,
+        context: Map[FiberRef.Runtime[_], AnyRef],
+        regions: List[String]
+      ): Unit =
         try {
           // TODO: Improve output & use console.group, etc.
           val line = message()

@@ -26,13 +26,13 @@ sealed trait LogLevel extends ZIOAspect[Nothing, Any, Nothing, Any, Nothing, Any
 object LogLevel {
   final case class Value(ordinal: Int, label: String, syslog: Int) extends LogLevel
 
-  val All     = Value(Int.MinValue, "ALL", -1)
-  val Fatal   = Value(50000, "FATAL", 2)
-  val Error   = Value(40000, "ERROR", 3)
-  val Warning = Value(30000, "WARN", 4)
-  val Info    = Value(20000, "INFO", 6)
-  val Debug   = Value(10000, "DEBUG", 7)
-  val None    = Value(Int.MaxValue, "OFF", 8)
+  val All: Value     = Value(Int.MinValue, "ALL", -1)
+  val Fatal: Value   = Value(50000, "FATAL", 2)
+  val Error: Value   = Value(40000, "ERROR", 3)
+  val Warning: Value = Value(30000, "WARN", 4)
+  val Info: Value    = Value(20000, "INFO", 6)
+  val Debug: Value   = Value(10000, "DEBUG", 7)
+  val None: Value    = Value(Int.MaxValue, "OFF", 8)
 
   implicit val orderingLogLevel: Ordering[LogLevel] = Ordering.by(_.ordinal)
 }
