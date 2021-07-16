@@ -200,7 +200,7 @@ trait Runtime[+R] {
       InitialInterruptStatus,
       None,
       PlatformConstants.tracingSupported,
-      Platform.newWeakHashMap(),
+      new java.util.concurrent.atomic.AtomicReference(Map.empty),
       supervisor,
       scope,
       platform.reportFailure

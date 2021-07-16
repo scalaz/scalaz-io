@@ -19,7 +19,7 @@ package zio.internal
 import zio.internal.stacktracer.Tracer
 import zio.internal.stacktracer.impl.AkkaLineNumbersTracer
 import zio.internal.tracing.TracingConfig
-import zio.{Cause, Supervisor}
+import zio.{Cause, FiberRef, LogLevel, Supervisor}
 
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
@@ -82,10 +82,21 @@ private[internal] trait PlatformSpecific {
 
       val executor = executor0
 
-      val tracing = Tracing(Tracer.globallyCached(new AkkaLineNumbersTracer), TracingConfig.enabled)
-
       def fatal(t: Throwable): Boolean =
         t.isInstanceOf[VirtualMachineError]
+
+      // FIXME: Make this nice
+      def log(
+        level: LogLevel,
+        message: () => String,
+        context: Map[FiberRef.Runtime[_], AnyRef],
+        regions: List[String]
+      ): Unit =
+        println(message())
+
+      def reportFailure(cause: Cause[Any]): Unit =
+        if (cause.died)
+          System.err.println(cause.prettyPrint)
 
       def reportFatal(t: Throwable): Nothing = {
         t.printStackTrace()
@@ -95,11 +106,9 @@ private[internal] trait PlatformSpecific {
         } catch { case _: Throwable => throw t }
       }
 
-      def reportFailure(cause: Cause[Any]): Unit =
-        if (cause.died)
-          System.err.println(cause.prettyPrint)
-
       val supervisor = Supervisor.none
+
+      val tracing = Tracing(Tracer.globallyCached(new AkkaLineNumbersTracer), TracingConfig.enabled)
 
     }
 

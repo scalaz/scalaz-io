@@ -19,7 +19,7 @@ package zio.internal
 import com.github.ghik.silencer.silent
 import zio.internal.stacktracer.Tracer
 import zio.internal.tracing.TracingConfig
-import zio.{Cause, Supervisor}
+import zio.{Cause, FiberRef, LogLevel, Supervisor}
 
 import java.util.{HashMap, HashSet, Map => JMap, Set => JSet}
 import scala.concurrent.ExecutionContext
@@ -77,6 +77,15 @@ private[internal] trait PlatformSpecific {
       val executor = executor0
 
       def fatal(t: Throwable): Boolean = false
+
+      def log(
+        level: LogLevel,
+        message: () => String,
+        context: Map[FiberRef.Runtime[_], AnyRef],
+        regions: List[String]
+      ): Unit =
+        // TODO: Improve me
+        println(message())
 
       def reportFatal(t: Throwable): Nothing = {
         t.printStackTrace()

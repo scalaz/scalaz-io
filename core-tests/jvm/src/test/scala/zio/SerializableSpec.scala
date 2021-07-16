@@ -192,6 +192,7 @@ object SerializableSpec extends ZIOBaseSpec {
     },
     test("FiberRef is serializable") {
       val value = 10
+
       for {
         init   <- FiberRef.make(value)
         ref    <- serializeAndBack(init)
