@@ -21,24 +21,6 @@ Each project in the ZIO organization namespace has a _Stage Badge_ which indicat
 
 * **Deprecated** — The project is not maintained anymore, and we don't recommend its usage.
 
-## Official Libraries
-
-- [ZIO Actors](https://github.com/zio/zio-actors) — A high-performance, purely-functional library for building, composing, and supervising typed actors based on ZIO
-- [ZIO Akka Cluster](https://github.com/zio/zio-akka-cluster) — A ZIO wrapper for Akka Cluster
-- [ZIO Cache](https://github.com/zio/zio-cache) - A ZIO native cache with a simple and compositional interface
-- [ZIO Config](https://github.com/zio/zio-config) — A ZIO based configuration parsing library
-- [ZIO Kafka](https://github.com/zio/zio-kafka) — A Kafka client for ZIO and ZIO Streams
-- [ZIO Keeper](https://github.com/zio/zio-keeper) — A functional library for consistent replication of metadata across dynamic clusters
-- [ZIO Logging](https://github.com/zio/zio-logging) — An environmental effect for adding logging into any ZIO application, with choice of pluggable back-ends
-- [ZIO Microservice](https://github.com/zio/zio-microservice) — ZIO-powered microservices via HTTP and other protocols
-- [ZIO NIO](https://github.com/zio/zio-nio) — A performant, purely-functional, low-level, and unopinionated wrapper around Java NIO functionality
-- [ZIO Optics](https://github.com/zio/zio-optics) - Easily modify parts of larger data structures
-- [ZIO Prelude](https://github.com/zio/zio-prelude) - A lightweight, distinctly Scala take on functional abstractions, with tight ZIO integration
-- [ZIO Redis](https://github.com/zio/zio-redis) - A ZIO-native Redis client
-- [ZIO SQS](https://github.com/zio/zio-sqs) — A ZIO-powered client for AWS SQS
-- [ZIO Telemetry](https://github.com/zio/zio-telemetry) — A ZIO-powered OpenTelemetry library 
-- [ZIO ZMX](https://github.com/zio/zio-zmx) - Monitoring, metrics and diagnostics for ZIO
-
 ## ZIO Actors
 
 [ZIO Actors](https://github.com/zio/zio-actors) is a high-performance, purely functional library for building, composing, and supervising typed actors based on ZIO.
