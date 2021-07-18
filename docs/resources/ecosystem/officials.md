@@ -3,9 +3,7 @@ id: officials
 title:  "Official ZIO Libraries"
 ---
 
-## Introduction 
-
-These libraries are hosted in the [ZIO organization](https://github.com/zio/) on Github, and are generally maintained by core contributors to ZIO.
+Official ZIO libraries are hosted in the [ZIO organization](https://github.com/zio/) on Github, and are generally maintained by core contributors to ZIO.
 
 Each project in the ZIO organization namespace has a _Stage Badge_ which indicates the current status of that project:
 
