@@ -1271,7 +1271,7 @@ ZIO ZMX key features:
 - **Integrations** — Support for major metrics collection services including _[Prometheus](https://github.com/prometheus/prometheus)_ and _[StatsD](https://github.com/statsd/statsd)_.
 - **Zero Dependencies** - No dependencies other than ZIO itself.
 
-## Installation
+### Installation
 
 In order to use this library, we need to add the following line in our `build.sbt` file:
 
@@ -1279,7 +1279,7 @@ In order to use this library, we need to add the following line in our `build.sb
 libraryDependencies += "dev.zio" %% "zio-zmx" % "0.0.6"
 ```
 
-## Example
+### Example
 
 To run this example, we also should add the following dependency in our `build.sbt` file:
 
