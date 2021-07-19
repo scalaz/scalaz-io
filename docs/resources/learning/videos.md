@@ -100,6 +100,9 @@ title:  "Videos"
 ### ZIO Pulsar
 - [ZIO World - ZIO PULSAR](https://www.youtube.com/watch?v=tpwydDqQBmk) by Jakub Czuchnowski (March 2020) — A new library that offers a native, first-class ZIO experience for Pulsar, the Kafka competitor gaining traction for some use cases.
 
+### ZIO Schema
+- [Zymposium - ZIO Schema](https://www.youtube.com/watch?v=GfNiDaL5aIM) by John A. De Goes, Adam Fraser and Kit Langton (May 2021)
+
 ### ZIO Kafka
 - [ZIO WORLD - ZIO Kafka](https://www.youtube.com/watch?v=GECv1ONieLw) by Aleksandar Skrbic (March 2020) — Aleksandar Skrbic presented ZIO Kafka, a critical library for the modern Scala developer, which hides some of the complexities of Kafka.
 
