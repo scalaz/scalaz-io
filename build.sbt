@@ -567,6 +567,7 @@ lazy val docs = project.module
       "dev.zio"            %% "zio-config-magnolia"         % "1.0.6",
       "dev.zio"            %% "zio-config-typesafe"         % "1.0.6",
       "dev.zio"            %% "zio-config-refined"          % "1.0.6",
+      "dev.zio"            %% "zio-json"                    % "0.1.5",
       "dev.zio"            %% "zio-kafka"                   % "0.15.0",
       "dev.zio"            %% "zio-logging"                 % "0.5.11",
       "dev.zio"            %% "zio-nio"                     % "1.0.0-RC11",
