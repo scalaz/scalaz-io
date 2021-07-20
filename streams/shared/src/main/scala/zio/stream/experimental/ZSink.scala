@@ -334,7 +334,8 @@ class ZSink[-R, -InErr, -In, +OutErr, +L, +Z](val channel: ZChannel[R, InErr, Ch
   final def timed: ZSink[R with Has[Clock], InErr, In, OutErr, L, (Z, Duration)] =
     summarized(Clock.nanoTime)((start, end) => Duration.fromNanos(end - start))
 
-  def repeat: ZSink[R, InErr, In, OutErr, L, Chunk[Z]] = ???
+  def repeat(implicit ev: L <:< In): ZSink[R, InErr, In, OutErr, L, Chunk[Z]] =
+    collectAllWhileWith[Chunk[Z]](Chunk.empty)(_ => true)((s, z) => s :+ z)
 
   /**
    * Summarize a sink by running an effect when the sink starts and again when it completes

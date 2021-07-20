@@ -629,6 +629,36 @@ object ZSinkSpec extends ZIOBaseSpec {
             }
           } @@ jvmOnly
         ),
+        suite("repeat")(
+          test("runs until the source is exhausted") {
+            assertM(
+              ZStream
+                .fromChunks(Chunk(1, 2), Chunk(3, 4, 5), Chunk(), Chunk(6, 7), Chunk(8, 9))
+                .run(ZSink.take[Nothing, Int](3).repeat)
+            )(
+              equalTo(Chunk(Chunk(1, 2, 3), Chunk(4, 5, 6), Chunk(7, 8, 9), Chunk.empty))
+            )
+          },
+          test("combinators") {
+            assertM(
+              ZStream
+                .fromChunks(Chunk(1, 2), Chunk(3, 4, 5), Chunk.empty, Chunk(6, 7), Chunk(8, 9))
+                .run(ZSink.sum[Nothing, Int].repeat.map(_.sum))
+            )(
+              equalTo(45)
+            )
+          },
+          test("handles errors") {
+            assertM(
+              (ZStream
+                .fromChunks(Chunk(1, 2)))
+                .run(ZSink.fail(()).repeat)
+                .either
+            )(
+              isLeft
+            )
+          }
+        ),
         suite("take")(
           test("take")(
             checkM(Gen.chunkOf(Gen.small(Gen.chunkOfN(_)(Gen.anyInt))), Gen.anyInt) { (chunks, n) =>
